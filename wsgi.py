@@ -1,11 +1,13 @@
-import os
 import sys
+import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, BASE_DIR)
 
 from app import create_app
 
-app = create_app("production")
+app = create_app()
+
+print("BASE DIR:", BASE_DIR)
+print("FILES:", os.listdir(BASE_DIR))
+print("TEMPLATE:", app.template_folder)
