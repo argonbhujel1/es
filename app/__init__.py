@@ -8,12 +8,10 @@ import cloudinary
 import os
 from pathlib import Path
 
-
 db = SQLAlchemy()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()
-
 
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'warning'
@@ -31,17 +29,16 @@ def create_app(config_name=None):
 
     BASE_DIR = Path(__file__).resolve().parent
 
-
     app = Flask(
         __name__,
         template_folder=str(BASE_DIR / "templates"),
         static_folder=str(BASE_DIR / "static")
     )
 
-
     app.config.from_object(config[config_name])
 
     app.config['PROPAGATE_EXCEPTIONS'] = True
+    app.config['DEBUG'] = True
 
 
     db.init_app(app)
@@ -58,11 +55,6 @@ def create_app(config_name=None):
         )
 
 
-    # Import models
-    from app.models import user, game, tournament, wallet, payment, news, leaderboard, notification, agent, audit
-
-
-    # Routes
     from app.routes.public import public_bp
     from app.routes.auth import auth_bp
     from app.routes.user import user_bp
