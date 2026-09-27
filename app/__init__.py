@@ -25,11 +25,15 @@ def create_app(config_name=None):
     if config_name not in config:
         config_name = 'default'
 
-    app = Flask(
-        __name__,
-        template_folder='templates',
-        static_folder='static'
-    )
+    from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR / "templates"),
+    static_folder=str(BASE_DIR / "static")
+)
 
     # Load configuration
     app.config.from_object(config[config_name])
