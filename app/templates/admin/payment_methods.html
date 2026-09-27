@@ -1,0 +1,57 @@
+{% extends "components/base.html" %}
+{% block title %}Payment Methods - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Payment Methods</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Add Payment Method</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required placeholder="eSewa"></div>
+        <div class="form-group"><label class="form-label">Account Name</label><input type="text" name="account_name" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Account Number</label><input type="text" name="account_number" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Instructions</label><textarea name="instructions" class="form-control"></textarea></div>
+        <div class="form-group"><label class="form-label">QR Image</label><input type="file" name="qr_image" class="form-control" accept="image/*"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">Min Deposit</label><input type="number" name="min_deposit" class="form-control" value="100"></div>
+          <div class="form-group"><label class="form-label">Max Deposit</label><input type="number" name="max_deposit" class="form-control" value="50000"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+      </form>
+    </div>
+
+    {% for m in methods %}
+    <div class="card">
+      <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+        {% if m.qr_image %}<img src="{{ m.qr_image }}" class="qr-image" style="max-width:120px;border-radius:8px" alt="QR">{% endif %}
+        <div style="flex:1">
+          <strong style="color:#fff">{{ m.name }}</strong>
+          <span class="badge badge-{{ 'success' if m.is_active else 'danger' }}">{{ 'ACTIVE' if m.is_active else 'INACTIVE' }}</span>
+          <p>Account: {{ m.account_name }} / {{ m.account_number }}</p>
+          <p>Deposit: Rs.{{ m.min_deposit }} - Rs.{{ m.max_deposit }}</p>
+          <p>Withdrawal: Rs.{{ m.min_withdrawal or 100 }} - Rs.{{ m.max_withdrawal or 50000 }}</p>
+          {% if m.instructions %}<p style="color:var(--text-muted);font-size:0.9rem">{{ m.instructions }}</p>{% endif %}
+          <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+            <a href="{{ url_for('admin.edit_payment_method', pm_id=m.id) }}" class="btn btn-sm btn-primary">Edit</a>
+            <form method="POST" action="{{ url_for('admin.toggle_payment_method', pm_id=m.id) }}" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm">{{ 'Disable' if m.is_active else 'Enable' }}</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.delete_payment_method', pm_id=m.id) }}" style="display:inline" onsubmit="return confirm('Delete this payment method?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card"><p class="empty-state">No payment methods yet.</p></div>
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}

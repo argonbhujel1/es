@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ESPORTS ARENA{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar">
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar')?.classList.toggle('open')">☰</button>
+    <a href="{{ url_for('public.index') }}" class="navbar-brand">ESPORTS ARENA</a>
+    <ul class="navbar-nav">
+      <li><a href="{{ url_for('public.games') }}">Games</a></li>
+      <li><a href="{{ url_for('public.rooms') }}">Rooms</a></li>
+      <li><a href="{{ url_for('public.tournaments') }}">Tournaments</a></li>
+      <li><a href="{{ url_for('public.leaderboard') }}">Leaderboard</a></li>
+      <li><a href="{{ url_for('public.news_list') }}">News</a></li>
+    </ul>
+    <div class="navbar-right">
+      {% if current_user.is_authenticated %}
+        {% if unread_notifications %}<a href="{{ url_for('user.notifications') }}" class="btn btn-sm">🔔 {{ unread_notifications }}</a>{% endif %}
+        {% if current_user.is_admin() %}
+          <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm">Admin</a>
+        {% elif current_user.is_agent() %}
+          <a href="{{ url_for('agent.dashboard') }}" class="btn btn-sm">Agent</a>
+        {% else %}
+          <a href="{{ url_for('user.dashboard') }}" class="btn btn-sm">Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-sm">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-sm">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-primary">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+  {% include "components/flashes.html" %}
+  {% block body %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

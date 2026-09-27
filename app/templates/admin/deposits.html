@@ -1,0 +1,51 @@
+{% extends "components/base.html" %}
+{% block title %}Deposits - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Deposits</h1>
+    {% include "components/flashes.html" %}
+    <div style="margin-bottom:1rem">
+      <a href="?status=pending" class="btn btn-sm">Pending</a>
+      <a href="?status=approved" class="btn btn-sm">Approved</a>
+      <a href="?status=rejected" class="btn btn-sm">Rejected</a>
+      <a href="?" class="btn btn-sm">All</a>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Amount</th><th>Ref</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for d in deposits %}
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.user.username if d.user else d.user_id }}</td>
+            <td>{{ d.deposit_type }}</td>
+            <td>Rs.{{ d.amount }}</td>
+            <td>{{ d.reference_number or '—' }}</td>
+            <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td><span class="badge badge-{{ d.status }}">{{ d.status }}</span></td>
+            <td>
+              {% if d.status == 'pending' %}
+              <form method="POST" action="{{ url_for('admin.approve_dep', dep_id=d.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-primary">Approve</button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.reject_dep', dep_id=d.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="reason" value="Rejected by admin">
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </form>
+              {% endif %}
+              {% if d.screenshot %}<a href="{{ d.screenshot }}" target="_blank" class="btn btn-sm">Screenshot</a>{% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="empty-state">No deposits.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

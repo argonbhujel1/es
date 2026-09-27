@@ -1,0 +1,78 @@
+{% extends "components/base.html" %}
+{% block title %}Tournaments - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Tournaments</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Create Tournament</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required></div>
+        <div class="form-group"><label class="form-label">Game</label>
+          <select name="game_id" class="form-control" required>
+            <option value="">Select game</option>
+            {% for g in games %}<option value="{{ g.id }}">{{ g.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+        <div class="form-group"><label class="form-label">Rules</label><textarea name="rules" class="form-control" rows="2"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">Entry Fee (Rs)</label><input type="number" name="entry_fee" class="form-control" value="50" min="0" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Prize Pool (Rs)</label><input type="number" name="prize_pool" class="form-control" value="1000" min="0" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Max Players</label><input type="number" name="max_players" class="form-control" value="50" min="2"></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <option value="draft">Draft</option>
+              <option value="upcoming" selected>Upcoming</option>
+              <option value="approved">Approved</option>
+              <option value="live">Live</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Start (YYYY-MM-DDTHH:MM)</label><input type="datetime-local" name="start_datetime" class="form-control"></div>
+          <div class="form-group"><label class="form-label">Registration Deadline</label><input type="datetime-local" name="registration_deadline" class="form-control"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Prize Distribution</label><input type="text" name="prize_distribution" class="form-control" placeholder="1st: 1000 | 2nd: 600 | 3rd: 400"></div>
+        <button type="submit" class="btn btn-primary">Create Tournament</button>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Game</th><th>Entry</th><th>Prize</th><th>Players</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for t in tournaments %}
+          <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ t.game.name if t.game else '—' }}</td>
+            <td>Rs.{{ t.entry_fee }}</td>
+            <td>Rs.{{ t.prize_pool }}</td>
+            <td>{{ t.current_players or 0 }}/{{ t.max_players }}</td>
+            <td><span class="badge badge-{{ t.status }}">{{ t.status }}</span></td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.tournament_status', t_id=t.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="status" class="form-control" style="display:inline;width:auto;padding:0.25rem">
+                  <option value="draft">Draft</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="approved">Approved</option>
+                  <option value="live">Live</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="btn btn-sm">Update</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty-state">No tournaments yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

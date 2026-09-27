@@ -1,0 +1,31 @@
+{% extends "components/base.html" %}
+{% block title %}Leaderboard - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Leaderboard</h1>
+    {% include "components/flashes.html" %}
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Rank</th><th>User</th><th>Wins</th><th>Matches</th><th>Prize Earned</th><th>Points</th><th>Period</th></tr></thead>
+        <tbody>
+          {% for e in entries %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ e.user.username if e.user else e.user_id }}</td>
+            <td>{{ e.wins or 0 }}</td>
+            <td>{{ e.matches_played or 0 }}</td>
+            <td>Rs.{{ e.prize_earned or 0 }}</td>
+            <td>{{ e.points or 0 }}</td>
+            <td>{{ e.period or 'overall' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty-state">No leaderboard entries yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

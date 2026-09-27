@@ -1,0 +1,49 @@
+{% extends "components/base.html" %}
+{% block title %}Withdrawals - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Withdrawals</h1>
+    {% include "components/flashes.html" %}
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Account</th><th>QR</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for w in withdrawals %}
+          <tr>
+            <td>{{ w.id }}</td>
+            <td>{{ w.user.username if w.user else w.user_id }}</td>
+            <td>Rs.{{ w.amount }}</td>
+            <td>{{ w.account_name }} / {{ w.account_number }}</td>
+            <td>{% if w.user_qr %}<a href="{{ w.user_qr }}" target="_blank">View QR</a>{% else %}—{% endif %}</td>
+            <td>{{ w.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td><span class="badge badge-{{ w.status }}">{{ w.status }}</span></td>
+            <td>
+              {% if w.status in ['pending','processing','approved'] %}
+              <form method="POST" action="{{ url_for('admin.withdrawal_action', wd_id=w.id, action='processing') }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm">Processing</button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.withdrawal_action', wd_id=w.id, action='approve') }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm">Approve</button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.withdrawal_action', wd_id=w.id, action='paid') }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-primary">Mark Paid</button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.withdrawal_action', wd_id=w.id, action='reject') }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="reason" value="Rejected">
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="empty-state">No withdrawals.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

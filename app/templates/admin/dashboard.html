@@ -1,0 +1,23 @@
+{% extends "components/base.html" %}
+{% block title %}Admin Dashboard - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Admin Dashboard</h1>
+    {% include "components/flashes.html" %}
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value">{{ stats.total_users }}</div></div>
+      <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-value">{{ stats.active_users }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Agents</div><div class="stat-value">{{ stats.total_agents }}</div></div>
+      <div class="stat-card"><div class="stat-label">Active Agents</div><div class="stat-value">{{ stats.active_agents }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Wallet Balance</div><div class="stat-value">Rs.{{ stats.total_wallet_balance }}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending Deposits</div><div class="stat-value">{{ stats.pending_deposits }}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending Withdrawals</div><div class="stat-value">{{ stats.pending_withdrawals }}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending Agents</div><div class="stat-value">{{ stats.pending_agents }}</div></div>
+      <div class="stat-card"><div class="stat-label">Active Tournaments</div><div class="stat-value">{{ stats.active_tournaments }}</div></div>
+      <div class="stat-card"><div class="stat-label">Active Rooms</div><div class="stat-value">{{ stats.active_rooms }}</div></div>
+    </div>
+  </main>
+</div>
+{% endblock %}

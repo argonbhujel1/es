@@ -1,0 +1,37 @@
+{% extends "components/base.html" %}
+{% block title %}Commission - Agent{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_agent.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Commission</h1>
+    {% include "components/flashes.html" %}
+    {% if profile %}
+    <div class="card" style="margin-bottom:1.5rem">
+      <p>Commission Rate: <strong style="color:var(--neon)">{{ profile.commission_rate }}%</strong></p>
+      <p>Total Loads: Rs.{{ profile.total_loads or 0 }}</p>
+      <p>Total Commission Earned: <strong style="color:var(--neon)">Rs.{{ profile.total_commission or 0 }}</strong></p>
+    </div>
+    {% endif %}
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Deposit</th><th>Amount</th><th>Rate</th><th>Commission</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for c in commissions %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>#{{ c.deposit_request_id }}</td>
+            <td>Rs.{{ c.deposit_amount or c.amount or 0 }}</td>
+            <td>{{ c.rate or profile.commission_rate if profile else 0 }}%</td>
+            <td>Rs.{{ c.commission_amount or c.amount or 0 }}</td>
+            <td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No commission records yet. Approve agent deposits to earn commission.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

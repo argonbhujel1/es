@@ -1,0 +1,41 @@
+{% extends "components/base.html" %}
+{% block title %}Tournament Claims - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Tournament Claims</h1>
+    {% include "components/flashes.html" %}
+    <p style="color:var(--text-muted);margin-bottom:1rem">Winner SS for admin-hosted tournaments. Verify → pay prize.</p>
+    {% for r in pending %}
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        {% if r.proof_screenshot %}
+        <a href="{{ r.proof_screenshot }}" target="_blank"><img src="{{ r.proof_screenshot }}" style="max-width:160px;border-radius:8px"></a>
+        {% endif %}
+        <div>
+          <p>Tournament: <strong>{{ r.tournament.name if r.tournament else r.tournament_id }}</strong></p>
+          <p>Winner claim: {{ r.winner.username if r.winner else r.winner_id }}</p>
+          <p>Notes: {{ r.notes or '—' }}</p>
+          <p>Prize pool: Rs.{{ r.tournament.prize_pool if r.tournament else 0 }}</p>
+          <form method="POST" action="{{ url_for('admin.tournament_claim_verify', res_id=r.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="approve">
+            <input type="number" name="prize_amount" class="form-control" style="display:inline;width:120px" step="0.01"
+                   value="{{ r.tournament.prize_pool if r.tournament else 0 }}" placeholder="Prize">
+            <button class="btn btn-primary">✓ Verify & Pay</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.tournament_claim_verify', res_id=r.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="reject">
+            <button class="btn btn-danger">Reject</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card"><p class="empty-state">No pending tournament claims.</p></div>
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}

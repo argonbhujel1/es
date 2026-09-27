@@ -1,0 +1,52 @@
+{% extends "components/base.html" %}
+{% block title %}Edit Payment Method - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Edit: {{ method.name }}</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Name</label>
+          <input type="text" name="name" class="form-control" value="{{ method.name }}" required>
+        </div>
+        <div class="form-group"><label class="form-label">Account Name</label>
+          <input type="text" name="account_name" class="form-control" value="{{ method.account_name or '' }}">
+        </div>
+        <div class="form-group"><label class="form-label">Account Number</label>
+          <input type="text" name="account_number" class="form-control" value="{{ method.account_number or '' }}">
+        </div>
+        <div class="form-group"><label class="form-label">Instructions</label>
+          <textarea name="instructions" class="form-control" rows="3">{{ method.instructions or '' }}</textarea>
+        </div>
+        {% if method.qr_image %}
+        <div class="form-group"><label class="form-label">Current QR</label><br>
+          <img src="{{ method.qr_image }}" style="max-width:150px;border-radius:8px" alt="QR">
+        </div>
+        {% endif %}
+        <div class="form-group"><label class="form-label">New QR Image (optional)</label>
+          <input type="file" name="qr_image" class="form-control" accept="image/*">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">Min Deposit</label>
+            <input type="number" name="min_deposit" class="form-control" value="{{ method.min_deposit or 100 }}" step="0.01">
+          </div>
+          <div class="form-group"><label class="form-label">Max Deposit</label>
+            <input type="number" name="max_deposit" class="form-control" value="{{ method.max_deposit or 50000 }}" step="0.01">
+          </div>
+          <div class="form-group"><label class="form-label">Min Withdrawal</label>
+            <input type="number" name="min_withdrawal" class="form-control" value="{{ method.min_withdrawal or 100 }}" step="0.01">
+          </div>
+          <div class="form-group"><label class="form-label">Max Withdrawal</label>
+            <input type="number" name="max_withdrawal" class="form-control" value="{{ method.max_withdrawal or 50000 }}" step="0.01">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('admin.payment_methods') }}" class="btn">Cancel</a>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

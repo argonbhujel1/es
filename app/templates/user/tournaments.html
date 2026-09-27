@@ -1,0 +1,86 @@
+{% extends "components/base.html" %}
+{% block title %}My Tournaments{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">My Tournaments</h1>
+    {% include "components/flashes.html" %}
+    <p><a href="{{ url_for('user.create_tournament') }}" class="btn btn-primary btn-sm">+ Create Tournament</a></p>
+
+    {% if pending_joins %}
+    <h2 class="card-title" style="color:#fff;margin:1rem 0">Pending join payments (verify)</h2>
+    {% for p in pending_joins %}
+    <div class="card" style="margin-bottom:0.75rem">
+      <p>{{ p.user.username if p.user else p.user_id }} → {{ p.tournament.name if p.tournament else p.tournament_id }}</p>
+      {% if p.payment_ss %}<a href="{{ p.payment_ss }}" target="_blank">Payment SS</a>{% endif %}
+      <form method="POST" action="{{ url_for('user.verify_join', t_id=p.tournament_id, part_id=p.id) }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-sm btn-primary">Verify Payment → Join</button>
+      </form>
+      <form method="POST" action="{{ url_for('user.verify_join', t_id=p.tournament_id, part_id=p.id) }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="reject">
+        <button class="btn btn-sm btn-danger">Reject</button>
+      </form>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if pending_results %}
+    <h2 class="card-title" style="color:#fff;margin:1rem 0">Result claims (you verify → prize from pot)</h2>
+    {% for r in pending_results %}
+    <div class="card" style="margin-bottom:0.75rem">
+      <p>{{ r.tournament.name if r.tournament else '' }} — Winner: {{ r.winner.username if r.winner else r.winner_id }}</p>
+      {% if r.proof_screenshot %}<a href="{{ r.proof_screenshot }}" target="_blank">View SS</a>{% endif %}
+      <p>Pot: Rs.{{ r.tournament.pot_balance if r.tournament else 0 }} | Prize pool: Rs.{{ r.tournament.prize_pool if r.tournament else 0 }}</p>
+      <form method="POST" action="{{ url_for('user.host_verify_result', res_id=r.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="number" name="prize_amount" value="{{ r.tournament.prize_pool if r.tournament else 0 }}" class="form-control" style="width:120px;display:inline">
+        <button class="btn btn-primary btn-sm">Verify & Pay from pot</button>
+      </form>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h2 class="card-title" style="color:#fff;margin:1rem 0">Hosted by me</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Entry</th><th>Prize</th><th>Pot (From Tournament)</th><th>Players</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for t in hosted %}
+          <tr>
+            <td><a href="{{ url_for('public.tournament_detail', slug=t.slug) }}">{{ t.name }}</a></td>
+            <td>Rs.{{ t.entry_fee }}</td>
+            <td>Rs.{{ t.prize_pool }}</td>
+            <td>Rs.{{ t.pot_balance or 0 }}</td>
+            <td>{{ t.current_players }}/{{ t.max_players }}</td>
+            <td>{{ t.status }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">None. Create one!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="card-title" style="color:#fff;margin:1rem 0">Joined</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Tournament</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for p in joined %}
+          <tr>
+            <td>{{ p.tournament.name if p.tournament else p.tournament_id }}</td>
+            <td>{{ p.status }}</td>
+            <td>{{ p.joined_at.strftime('%Y-%m-%d') if p.joined_at else '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="empty-state">No joins yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

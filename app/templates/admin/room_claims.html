@@ -1,0 +1,66 @@
+{% extends "components/base.html" %}
+{% block title %}Room Claims - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Room Result Claims</h1>
+    {% include "components/flashes.html" %}
+    <p style="color:var(--text-muted);margin-bottom:1rem">Winner uploaded SS → you verify → auto deduct loser / credit winner.</p>
+
+    <h2 class="card-title" style="color:#fff;margin-bottom:0.75rem">Pending Verification</h2>
+    {% for room in pending %}
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start">
+        {% if room.claim_screenshot %}
+        <a href="{{ room.claim_screenshot }}" target="_blank">
+          <img src="{{ room.claim_screenshot }}" style="max-width:180px;border-radius:8px;border:2px solid var(--border)">
+        </a>
+        {% endif %}
+        <div style="flex:1">
+          <strong style="color:#fff">{{ room.name }}</strong> <span class="badge badge-pending">pending_verify</span>
+          <p>Game: {{ room.game.name if room.game else '—' }}</p>
+          <p>Host: {{ room.creator.username if room.creator else room.created_by }}
+             | Opponent: {{ room.opponent.username if room.opponent else '—' }}</p>
+          <p>Winner: <strong style="color:var(--neon)">{{ room.winner.username if room.winner else room.winner_id }}</strong>
+             | Loser: {{ room.loser.username if room.loser else room.loser_id }}</p>
+          <p>Stake / amount: <strong>Rs.{{ room.pending_transfer_amount or room.stake_amount or 0 }}</strong>
+             (pot if both held: Rs.{{ ((room.stake_amount or 0) * 2) if room.stake_amount else (room.pending_transfer_amount or 0) }})</p>
+          <form method="POST" action="{{ url_for('admin.room_claim_verify', room_id=room.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="approve">
+            <button class="btn btn-primary">✓ Verify → Auto Pay Winner</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.room_claim_verify', room_id=room.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="reject">
+            <button class="btn btn-danger">Reject</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card"><p class="empty-state">No pending claims.</p></div>
+    {% endfor %}
+
+    <h2 class="card-title" style="color:#fff;margin:1.5rem 0 0.75rem">Recent</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Room</th><th>Winner</th><th>Loser</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for room in recent %}
+          <tr>
+            <td>{{ room.name }}</td>
+            <td>{{ room.winner.username if room.winner else '—' }}</td>
+            <td>{{ room.loser.username if room.loser else '—' }}</td>
+            <td><span class="badge badge-{{ room.status }}">{{ room.status }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty-state">None yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

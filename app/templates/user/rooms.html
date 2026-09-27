@@ -1,0 +1,101 @@
+{% extends "components/base.html" %}
+{% block title %}My Rooms - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">My Rooms</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Create Room</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Room Name</label>
+          <input type="text" name="name" class="form-control" required placeholder="Friday Night Scrims">
+        </div>
+        <div class="form-group"><label class="form-label">Game</label>
+          <select name="game_id" class="form-control">
+            <option value="">Select game</option>
+            {% for g in games %}<option value="{{ g.id }}">{{ g.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">In-game Room ID</label>
+            <input type="text" name="room_id" class="form-control" placeholder="Optional">
+          </div>
+          <div class="form-group"><label class="form-label">Password</label>
+            <input type="text" name="password" class="form-control" placeholder="Optional">
+          </div>
+          <div class="form-group"><label class="form-label">Max Players</label>
+            <input type="number" name="max_players" class="form-control" value="50" min="2">
+          </div>
+          <div class="form-group"><label class="form-label">Match Time</label>
+            <input type="datetime-local" name="match_time" class="form-control">
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Instructions</label>
+          <textarea name="instructions" class="form-control" rows="2" placeholder="How to join, rules..."></textarea>
+        </div>
+        <div class="form-group"><label class="form-label">1v1 Stake (Rs) — both hold, winner gets pot</label>
+          <input type="number" name="stake_amount" class="form-control" value="0" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" name="is_challenge" value="1"> 1v1 Challenge (OTP transfer after match)</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" name="host_plays" value="1" checked> I play in this room (host as player)</label>
+        </div>
+        <div class="form-group"><label class="form-label">Room Photo</label>
+          <input type="file" name="cover_image" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" name="is_public" value="1" checked> Public (visible on Rooms page)</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Room</button>
+      </form>
+    </div>
+
+    <h2 class="card-title" style="color:#fff;margin-bottom:0.75rem">Rooms I Created</h2>
+    <div class="card table-wrap" style="margin-bottom:1.5rem">
+      <table>
+        <thead><tr><th>Name</th><th>Game</th><th>Room ID</th><th>Password</th><th>Match Time</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in rooms %}
+          <tr>
+            <td><a href="{{ url_for('user.room_detail', room_id=r.id) }}">{{ r.name }}</a></td>
+            <td>{{ r.game.name if r.game else '—' }}</td>
+            <td>{{ r.room_id or '—' }}</td>
+            <td>{{ r.password or '—' }}</td>
+            <td>{{ r.match_time.strftime('%Y-%m-%d %H:%M') if r.match_time else '—' }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">You haven't created any rooms yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="card-title" style="color:#fff;margin-bottom:0.75rem">Tournament Rooms</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Room</th><th>Room ID</th><th>Password</th><th>Match Time</th><th>Instructions</th></tr></thead>
+        <tbody>
+          {% for r in joined_rooms %}
+          <tr>
+            <td><a href="{{ url_for('user.room_detail', room_id=r.id) }}">{{ r.name }}</a></td>
+            <td>{{ r.room_id or '—' }}</td>
+            <td>{{ r.password or '—' }}</td>
+            <td>{{ r.match_time.strftime('%Y-%m-%d %H:%M') if r.match_time else '—' }}</td>
+            <td>{{ r.instructions or '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty-state">No tournament rooms. Join a tournament first.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

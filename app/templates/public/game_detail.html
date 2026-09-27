@@ -1,0 +1,53 @@
+{% extends "components/base.html" %}
+{% block title %}{{ game.name }} - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem">
+    {% if game.icon %}<img src="{{ game.icon }}" style="width:64px;height:64px;object-fit:cover;border-radius:12px">{% endif %}
+    <div>
+      <h1 class="page-title" style="margin:0">{{ game.name }}</h1>
+      <p style="color:var(--text-muted)">{{ game.description or '' }}</p>
+    </div>
+  </div>
+  {% if game.banner %}<img src="{{ game.banner }}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:1.5rem">{% endif %}
+
+  <h2 class="page-title">Tournaments</h2>
+  <div class="tournament-grid">
+    {% for t in tournaments %}
+    <div class="tournament-card">
+      <div class="tournament-banner">{% if t.banner %}<img src="{{ t.banner }}" style="width:100%;height:100%;object-fit:cover">{% else %}🏆{% endif %}</div>
+      <div class="tournament-body">
+        <div class="tournament-name">{{ t.name }}</div>
+        <div class="tournament-meta"><span class="badge badge-{{ t.status }}">{{ t.status }}</span></div>
+        <div class="tournament-prize">Prize: Rs.{{ t.prize_pool }}</div>
+        <a href="{{ url_for('public.tournament_detail', slug=t.slug) }}" class="btn btn-sm" style="margin-top:0.5rem">Details</a>
+      </div>
+    </div>
+    {% else %}
+    <p class="empty-state">No tournaments for this game yet.</p>
+    {% endfor %}
+  </div>
+
+  <h2 class="page-title" style="margin-top:2rem">Public Rooms (FCFO)</h2>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Room</th><th>Host</th><th>Stake</th><th>Players</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in rooms %}
+        <tr>
+          <td>{% if r.cover_image %}<img src="{{ r.cover_image }}" style="width:28px;height:28px;border-radius:4px;vertical-align:middle"> {% endif %}{{ r.name }}</td>
+          <td>{{ r.creator.username if r.creator else '—' }}</td>
+          <td>Rs.{{ r.stake_amount or 0 }}</td>
+          <td>{{ r.current_players or 0 }}/{{ r.max_players }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>{% if current_user.is_authenticated %}<a class="btn btn-sm btn-primary" href="{{ url_for('user.room_detail', room_id=r.id) }}">Join</a>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="empty-state">No open rooms for this game.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:1rem"><a href="{{ url_for('public.games') }}" class="btn btn-sm">All Games</a></p>
+</div>
+{% endblock %}

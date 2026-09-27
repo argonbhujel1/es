@@ -1,0 +1,37 @@
+{% extends "components/base.html" %}
+{% block title %}Users - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Users</h1>
+    {% include "components/flashes.html" %}
+    <form method="GET" style="margin-bottom:1rem;display:flex;gap:0.5rem">
+      <input type="text" name="q" class="form-control" placeholder="Search username, email, phone, ID..." value="{{ q or '' }}" style="max-width:400px">
+      <button type="submit" class="btn">Search</button>
+    </form>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for u in users.items %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td>{% if u.is_blocked %}<span class="badge badge-danger">Blocked</span>{% else %}<span class="badge badge-success">Active</span>{% endif %}</td>
+            <td>
+              <a href="{{ url_for('admin.user_detail', user_id=u.id) }}" class="btn btn-sm">View</a>
+              <a href="{{ url_for('admin.user_wallet', user_id=u.id) }}" class="btn btn-sm">Wallet</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No users found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

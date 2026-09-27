@@ -1,0 +1,42 @@
+{% extends "components/base.html" %}
+{% block title %}Rooms - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  <h1 class="page-title">Open Rooms (FCFO)</h1>
+  <p style="color:var(--text-muted);margin-bottom:1rem">First Come First Out — oldest rooms first. Join early!</p>
+  {% if current_user.is_authenticated and not current_user.is_admin() and not current_user.is_agent() %}
+  <p style="margin-bottom:1rem"><a href="{{ url_for('user.my_rooms') }}" class="btn btn-primary btn-sm">+ Create Your Room</a></p>
+  {% endif %}
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Room</th><th>Game</th><th>Host</th><th>Match Time</th><th>Players</th><th>Stake</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in rooms %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>
+            {% if r.cover_image %}<img src="{{ r.cover_image }}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;vertical-align:middle">{% endif %}
+            {{ r.name }}
+          </td>
+          <td>{{ r.game.name if r.game else (r.tournament.game.name if r.tournament and r.tournament.game else '—') }}</td>
+          <td>{{ r.creator.username if r.creator else 'Admin' }}{% if r.host_plays == false %} <span class="badge badge-info">host only</span>{% endif %}</td>
+          <td>{{ r.match_time.strftime('%Y-%m-%d %H:%M') if r.match_time else '—' }}</td>
+          <td>{{ r.current_players or 0 }}/{{ r.max_players }}</td>
+          <td>Rs.{{ r.stake_amount or 0 }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('user.room_detail', room_id=r.id) }}" class="btn btn-sm btn-primary">Open / Join</a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sm">Login</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="empty-state">No active rooms.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

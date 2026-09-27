@@ -1,0 +1,26 @@
+{% extends "components/base.html" %}
+{% block title %}Leaderboard - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  <h1 class="page-title">Leaderboard</h1>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Rank</th><th>Username</th><th>Points</th><th>Wins</th><th>Matches</th><th>Prize Earned</th></tr></thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td><strong style="color:var(--neon)">#{{ loop.index }}</strong></td>
+          <td>{{ e.user.username if e.user else '—' }}</td>
+          <td>{{ e.points }}</td>
+          <td>{{ e.wins }}</td>
+          <td>{{ e.matches_played }}</td>
+          <td>Rs.{{ e.prize_earned }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="empty-state">No rankings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "components/base.html" %}
+{% block title %}Create Tournament{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Create Tournament</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required></div>
+        <div class="form-group"><label class="form-label">Game</label>
+          <select name="game_id" class="form-control" required>
+            {% for g in games %}<option value="{{ g.id }}">{{ g.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control"></textarea></div>
+        <div class="form-group"><label class="form-label">Rules</label><textarea name="rules" class="form-control"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">Entry Fee (Rs) — you set this</label>
+            <input type="number" name="entry_fee" class="form-control" value="50" min="0" step="1"></div>
+          <div class="form-group"><label class="form-label">Prize Pool (Rs)</label>
+            <input type="number" name="prize_pool" class="form-control" value="500" min="0" step="1"></div>
+          <div class="form-group"><label class="form-label">Max Players</label>
+            <input type="number" name="max_players" class="form-control" value="50"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Prize Distribution text</label>
+          <input type="text" name="prize_distribution" class="form-control" placeholder="1st: 300 | 2nd: 200"></div>
+        <div class="form-group"><label class="form-label">Your QR (for entry fee offline)</label>
+          <input type="file" name="payment_qr" class="form-control" accept="image/*"></div>
+        <div class="form-group"><label class="form-label">Payment instructions</label>
+          <textarea name="payment_instructions" class="form-control" placeholder="Pay to eSewa XXX and upload SS"></textarea></div>
+        <div class="form-group"><label class="form-label">Banner</label>
+          <input type="file" name="banner" class="form-control" accept="image/*"></div>
+        <button class="btn btn-primary">Create Tournament</button>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

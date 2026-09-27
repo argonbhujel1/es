@@ -1,0 +1,46 @@
+{% extends "components/base.html" %}
+{% block title %}Dashboard - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Dashboard</h1>
+    {% include "components/flashes.html" %}
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Wallet Balance</div><div class="stat-value">Rs.{{ '%.2f'|format(stats.balance) }}</div></div>
+      <div class="stat-card"><div class="stat-label">Joined Tournaments</div><div class="stat-value">{{ stats.joined_tournaments }}</div></div>
+      <div class="stat-card"><div class="stat-label">Matches Played</div><div class="stat-value">{{ stats.matches_played }}</div></div>
+      <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value">{{ stats.wins }}</div></div>
+      <div class="stat-card"><div class="stat-label">Prize Won</div><div class="stat-value">Rs.{{ '%.2f'|format(stats.prize_won) }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Deposited</div><div class="stat-value">Rs.{{ '%.2f'|format(stats.total_deposited) }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Withdrawn</div><div class="stat-value">Rs.{{ '%.2f'|format(stats.total_withdrawn) }}</div></div>
+    </div>
+    <div style="display:flex;gap:1rem;margin-bottom:1.5rem">
+      <a href="{{ url_for('wallet.add_money') }}" class="btn btn-primary">+ Add Money</a>
+      <a href="{{ url_for('wallet.withdraw') }}" class="btn">Withdraw</a>
+      <a href="{{ url_for('public.tournaments') }}" class="btn">Join Tournament</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Recent Transactions</span><a href="{{ url_for('user.transactions') }}">View All</a></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for t in recent_txns %}
+            <tr>
+              <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ t.type }}</td>
+              <td style="color:var(--neon)">Rs.{{ t.amount }}</td>
+              <td>Rs.{{ t.new_balance }}</td>
+              <td><span class="badge badge-{{ t.status }}">{{ t.status }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="empty-state">No transactions yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

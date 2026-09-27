@@ -1,0 +1,63 @@
+{% extends "components/base.html" %}
+{% block title %}User Wallet - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Wallet: {{ user.username }}</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <p>Current Balance: <span class="wallet-balance" style="font-size:1.8rem">Rs.{{ wallet.balance }}</span></p>
+      <p>Available: Rs.{{ wallet.available_balance }} | Held: Rs.{{ wallet.held_balance }}</p>
+      <div style="margin-top:1rem;display:flex;gap:0.5rem">
+        <button class="btn btn-primary" onclick="openModal('addModal')">+ ADD MONEY</button>
+        <button class="btn btn-danger" onclick="openModal('deductModal')">- DEDUCT MONEY</button>
+      </div>
+    </div>
+    <div class="card table-wrap">
+      <div class="card-title">Recent Transactions</div>
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Prev</th><th>New</th><th>Reason</th></tr></thead>
+        <tbody>
+          {% for t in txns %}
+          <tr>
+            <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ t.type }}</td>
+            <td>Rs.{{ t.amount }}</td>
+            <td>{{ t.previous_balance }}</td>
+            <td>{{ t.new_balance }}</td>
+            <td>{{ t.reason or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title">DIRECT ADMIN WALLET LOAD</div>
+    <form method="POST" action="{{ url_for('admin.user_add_money', user_id=user.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group"><label class="form-label">Amount (Rs.)</label><input type="number" name="amount" class="form-control" step="0.01" required></div>
+      <div class="form-group"><label class="form-label">Reason</label><input type="text" name="reason" class="form-control" required></div>
+      <div class="form-group"><label class="form-label">Reference</label><input type="text" name="reference" class="form-control"></div>
+      <button type="submit" class="btn btn-primary">CONFIRM & ADD MONEY</button>
+      <button type="button" class="btn" onclick="closeModal('addModal')">Cancel</button>
+    </form>
+  </div>
+</div>
+<div class="modal-overlay" id="deductModal">
+  <div class="modal">
+    <div class="modal-title">DIRECT ADMIN WALLET DEDUCT</div>
+    <form method="POST" action="{{ url_for('admin.user_deduct_money', user_id=user.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group"><label class="form-label">Amount (Rs.)</label><input type="number" name="amount" class="form-control" step="0.01" required></div>
+      <div class="form-group"><label class="form-label">Reason</label><input type="text" name="reason" class="form-control" required></div>
+      <div class="form-group"><label class="form-label">Reference</label><input type="text" name="reference" class="form-control"></div>
+      <button type="submit" class="btn btn-danger">CONFIRM & DEDUCT</button>
+      <button type="button" class="btn" onclick="closeModal('deductModal')">Cancel</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

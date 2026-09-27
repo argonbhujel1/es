@@ -1,0 +1,71 @@
+{% extends "components/base.html" %}
+{% block title %}Results - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Match Results</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Submit Result</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Match</label>
+          <select name="match_id" class="form-control" required>
+            <option value="">Select match</option>
+            {% for m in matches %}<option value="{{ m.id }}">#{{ m.id }} {{ m.name or '' }} ({{ m.tournament.name if m.tournament else '' }})</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Tournament</label>
+          <select name="tournament_id" class="form-control" required>
+            <option value="">Select</option>
+            {% for t in tournaments %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Winner</label>
+          <select name="winner_id" class="form-control" required>
+            <option value="">Select player</option>
+            {% for u in users %}<option value="{{ u.id }}">{{ u.username }} ({{ u.full_name or '' }})</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Notes / Score</label><input type="text" name="notes" class="form-control" placeholder="2-1 or notes"></div>
+        <div class="form-group"><label class="form-label">Proof Screenshot</label><input type="file" name="proof_screenshot" class="form-control" accept="image/*"></div>
+        <button type="submit" class="btn btn-primary">Submit Result</button>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Match</th><th>Winner</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for r in results %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>#{{ r.match_id }}</td>
+            <td>{{ r.winner.username if r.winner else r.winner_id }}</td>
+            <td>{{ r.notes or '—' }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+            <td>
+              {% if r.status == 'pending' %}
+              <form method="POST" action="{{ url_for('admin.approve_result', res_id=r.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="number" name="prize_amount" value="0" class="form-control" style="display:inline;width:100px;padding:0.25rem" step="0.01" placeholder="Prize Rs">
+                <button class="btn btn-sm btn-primary">Approve & Pay</button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.reject_result', res_id=r.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No results yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

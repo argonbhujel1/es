@@ -1,0 +1,49 @@
+{% extends "components/base.html" %}
+{% block title %}Withdraw - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Withdraw Money</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <p>Available Balance: <strong style="color:var(--neon)">Rs.{{ '%.2f'|format(wallet.available_balance) }}</strong></p>
+      <form method="POST" enctype="multipart/form-data" style="margin-top:1rem">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label">Amount (Rs.)</label>
+          <input type="number" name="amount" class="form-control" step="0.01" min="1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select name="payment_method_id" class="form-control">
+            <option value="">— Select —</option>
+            {% for m in methods %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Name</label>
+          <input type="text" name="account_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <input type="text" name="account_number" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Details</label>
+          <textarea name="payment_details" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Upload Your QR Code</label>
+          <input type="file" name="user_qr" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note</label>
+          <textarea name="note" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">SUBMIT WITHDRAWAL</button>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

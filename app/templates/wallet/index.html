@@ -1,0 +1,49 @@
+{% extends "components/base.html" %}
+{% block title %}Wallet - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Wallet</h1>
+    {% include "components/flashes.html" %}
+    <div class="card" style="text-align:center;padding:2rem">
+      <div class="stat-label">Available Balance</div>
+      <div class="wallet-balance">Rs.{{ '%.2f'|format(wallet.available_balance) }}</div>
+      {% if wallet.held_balance and wallet.held_balance > 0 %}
+      <p style="color:var(--warning)">Held: Rs.{{ wallet.held_balance }}</p>
+      {% endif %}
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:center">
+        <a href="{{ url_for('wallet.add_money') }}" class="btn btn-primary">+ ADD MONEY</a>
+        <a href="{{ url_for('wallet.withdraw') }}" class="btn">WITHDRAW</a>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Deposited</div><div class="stat-value">Rs.{{ wallet.total_deposited }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Withdrawn</div><div class="stat-value">Rs.{{ wallet.total_withdrawn }}</div></div>
+      <div class="stat-card"><div class="stat-label">Tournament Spending</div><div class="stat-value">Rs.{{ wallet.total_tournament_spent }}</div></div>
+      <div class="stat-card"><div class="stat-label">Prize Won</div><div class="stat-value">Rs.{{ wallet.total_prize_won }}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Recent Transactions</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead>
+          <tbody>
+            {% for t in txns %}
+            <tr>
+              <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ t.type }}</td>
+              <td>Rs.{{ t.amount }}</td>
+              <td><span class="badge badge-{{ t.status }}">{{ t.status }}</span></td>
+              <td>{{ t.reference or '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="empty-state">No transactions.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

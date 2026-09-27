@@ -1,0 +1,59 @@
+{% extends "components/base.html" %}
+{% block title %}Deposit via Admin - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Deposit via Admin</h1>
+    {% include "components/flashes.html" %}
+    {% if methods %}
+    <div class="card">
+      <div class="card-title">Admin Payment Methods</div>
+      {% for m in methods %}
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0;padding:1rem;border:1px solid var(--border);border-radius:8px">
+        {% if m.qr_image %}<img src="{{ m.qr_image }}" class="qr-image" alt="QR">{% endif %}
+        <div>
+          <strong style="color:#fff">{{ m.name }}</strong><br>
+          Account: {{ m.account_name or '—' }}<br>
+          Number: {{ m.account_number or '—' }}<br>
+          Min: Rs.{{ m.min_deposit }} | Max: Rs.{{ m.max_deposit }}<br>
+          {% if m.instructions %}<p style="color:var(--text-muted);margin-top:0.5rem">{{ m.instructions }}</p>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <div class="card-title">Submit Deposit Request</div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select name="payment_method_id" class="form-control" required>
+            {% for m in methods %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount (Rs.)</label>
+          <input type="number" name="amount" class="form-control" step="0.01" min="1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transaction / Reference Number</label>
+          <input type="text" name="reference_number" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Screenshot</label>
+          <input type="file" name="screenshot" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note (optional)</label>
+          <textarea name="note" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">SUBMIT DEPOSIT REQUEST</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="empty-state">No payment methods configured. Contact admin.</p>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

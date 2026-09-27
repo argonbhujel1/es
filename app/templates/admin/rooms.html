@@ -1,0 +1,63 @@
+{% extends "components/base.html" %}
+{% block title %}Rooms - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Rooms</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Create Room</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Tournament</label>
+          <select name="tournament_id" class="form-control" required>
+            <option value="">Select tournament</option>
+            {% for t in tournaments %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Room Name</label><input type="text" name="name" class="form-control" required></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label class="form-label">Room ID</label><input type="text" name="room_id" class="form-control"></div>
+          <div class="form-group"><label class="form-label">Password</label><input type="text" name="password" class="form-control"></div>
+          <div class="form-group"><label class="form-label">Max Players</label><input type="number" name="max_players" class="form-control" value="50"></div>
+          <div class="form-group"><label class="form-label">Match Time</label><input type="datetime-local" name="match_time" class="form-control"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Room Photo</label>
+          <input type="file" name="cover_image" class="form-control" accept="image/*"></div>
+        <div class="form-group"><label class="form-label">Instructions</label><textarea name="instructions" class="form-control" rows="2"></textarea></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select name="status" class="form-control">
+            <option value="waiting">Waiting</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Room</button>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Tournament</th><th>Room ID</th><th>Password</th><th>Max</th><th>Status</th><th>Match Time</th></tr></thead>
+        <tbody>
+          {% for r in rooms %}
+          <tr>
+            <td>{{ r.name }}</td>
+            <td>{{ r.tournament.name if r.tournament else r.tournament_id }}</td>
+            <td>{{ r.room_id or '—' }}</td>
+            <td>{{ r.password or '—' }}</td>
+            <td>{{ r.max_players }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+            <td>{{ r.match_time.strftime('%Y-%m-%d %H:%M') if r.match_time else '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty-state">No rooms yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

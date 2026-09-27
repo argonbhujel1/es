@@ -1,0 +1,48 @@
+{% extends "components/base.html" %}
+{% block title %}News - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">News CMS</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Publish News</span></div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-control" required></div>
+        <div class="form-group"><label class="form-label">Content</label><textarea name="content" class="form-control" rows="5" required></textarea></div>
+        <div class="form-group">
+          <label><input type="checkbox" name="is_featured" value="1"> Featured</label>
+        </div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select name="status" class="form-control">
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save News</button>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Title</th><th>Status</th><th>Featured</th><th>Published</th></tr></thead>
+        <tbody>
+          {% for n in news_list %}
+          <tr>
+            <td>{{ n.title }}</td>
+            <td><span class="badge badge-{{ 'success' if n.status == 'published' else 'pending' }}">{{ n.status }}</span></td>
+            <td>{{ 'Yes' if n.is_featured else 'No' }}</td>
+            <td>{{ n.published_at.strftime('%Y-%m-%d') if n.published_at else '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty-state">No news articles.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

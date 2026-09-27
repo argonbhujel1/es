@@ -1,0 +1,21 @@
+{% extends "components/base.html" %}
+{% block title %}Add Money - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Add Money</h1>
+    {% include "components/flashes.html" %}
+    <div class="stat-grid">
+      <a href="{{ url_for('wallet.deposit_admin') }}" class="stat-card" style="text-decoration:none;cursor:pointer">
+        <div class="stat-value" style="font-size:1.3rem">VIA ADMIN</div>
+        <div class="stat-label">Pay official ESPORTS ARENA QR and submit proof</div>
+      </a>
+      <a href="{{ url_for('wallet.deposit_agent') }}" class="stat-card" style="text-decoration:none;cursor:pointer">
+        <div class="stat-value" style="font-size:1.3rem">VIA AGENT</div>
+        <div class="stat-label">Pay an approved wallet agent and submit proof</div>
+      </a>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "components/base.html" %}
+{% block title %}{{ room.name }} - Room{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">{{ room.name }}</h1>
+    {% include "components/flashes.html" %}
+    <div class="card" style="margin-bottom:1rem">
+      {% if room.cover_image %}<img src="{{ room.cover_image }}" style="max-width:200px;border-radius:8px;margin-bottom:0.75rem">{% endif %}
+      <p>Status: <span class="badge badge-{{ room.status }}">{{ room.status }}</span></p>
+      <p>Host: {{ room.creator.username if room.creator else room.created_by }}
+        {% if room.host_plays == false %} <span class="badge badge-info">not playing</span>{% endif %}</p>
+      <p>Opponent: {{ room.opponent.username if room.opponent else 'Waiting…' }}</p>
+      <p>Game: {{ room.game.name if room.game else '—' }}</p>
+      <p>Stake: <strong style="color:var(--neon)">Rs.{{ room.stake_amount or room.entry_fee or 0 }}</strong></p>
+      {% if room.room_id %}<p>In-game ID: <code>{{ room.room_id }}</code>{% if room.password %} / Pass: <code>{{ room.password }}</code>{% endif %}</p>{% endif %}
+      {% if room.instructions %}<p>{{ room.instructions }}</p>{% endif %}
+    </div>
+
+    {% if current_user.id != room.created_by and not room.opponent_id and room.status == 'waiting' %}
+    <div class="card" style="margin-bottom:1rem">
+      <form method="POST" action="{{ url_for('user.join_room', room_id=room.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if room.password %}
+        <div class="form-group"><label class="form-label">Password</label>
+          <input type="text" name="password" class="form-control"></div>
+        {% endif %}
+        <button class="btn btn-primary">Join Room {% if room.stake_amount and room.stake_amount > 0 %}(hold Rs.{{ room.stake_amount }}){% endif %}</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if current_user.id in [room.created_by, room.opponent_id] and room.status == 'joined' %}
+    <form method="POST" action="{{ url_for('user.start_room', room_id=room.id) }}" style="margin-bottom:1rem">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-primary">Start Match</button>
+    </form>
+    {% endif %}
+
+    {% if room.status in ['playing', 'joined'] and current_user.id in [room.created_by, room.opponent_id] %}
+    <div class="card" style="margin-bottom:1rem">
+      <h3 class="card-title">Claim Win + Upload Screenshot</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem">Winner uploads SS → <strong>Admin verifies</strong> → auto pay from loser to winner.</p>
+      <form method="POST" action="{{ url_for('user.room_claim_win', room_id=room.id) }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Winner</label>
+          <select name="winner_id" class="form-control" required>
+            <option value="{{ current_user.id }}">Me ({{ current_user.username }})</option>
+            {% if room.created_by and room.created_by != current_user.id %}
+            <option value="{{ room.created_by }}">{{ room.creator.username if room.creator else 'Host' }}</option>
+            {% endif %}
+            {% if room.opponent_id and room.opponent_id != current_user.id %}
+            <option value="{{ room.opponent_id }}">{{ room.opponent.username if room.opponent else 'Opponent' }}</option>
+            {% endif %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Result Screenshot (required)</label>
+          <input type="file" name="screenshot" class="form-control" accept="image/*" required></div>
+        <button class="btn btn-primary">Submit for Admin Verify</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if room.status == 'pending_verify' %}
+    <div class="card" style="margin-bottom:1rem;border:1px solid var(--neon)">
+      <h3 class="card-title">Waiting for Admin Verification</h3>
+      <p>Claimed winner: <strong>{{ room.winner.username if room.winner else room.winner_id }}</strong></p>
+      <p>Loser: <strong>{{ room.loser.username if room.loser else room.loser_id }}</strong></p>
+      <p>Amount: Rs.{{ room.pending_transfer_amount or room.stake_amount }}</p>
+      {% if room.claim_screenshot %}
+      <p>Screenshot: <a href="{{ room.claim_screenshot }}" target="_blank">View SS</a></p>
+      <img src="{{ room.claim_screenshot }}" style="max-width:280px;border-radius:8px;margin:0.5rem 0">
+      {% endif %}
+      <p style="color:var(--text-muted)">Admin will verify and auto-transfer funds.</p>
+    </div>
+    {% endif %}
+
+    {% if room.status == 'completed' %}
+    <div class="card">
+      <span class="badge badge-success">Completed</span>
+      <p>Winner: {{ room.winner.username if room.winner else room.winner_id }}</p>
+      {% if room.claim_screenshot %}<p><a href="{{ room.claim_screenshot }}" target="_blank">Result SS</a></p>{% endif %}
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('user.my_rooms') }}" class="btn btn-sm" style="margin-top:1rem">Back</a>
+  </main>
+</div>
+{% endblock %}

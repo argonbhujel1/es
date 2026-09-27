@@ -1,0 +1,25 @@
+{% extends "components/base.html" %}
+{% block title %}{{ user.username }} - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">{{ user.username }}</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <p>Email: {{ user.email }}</p>
+      <p>Phone: {{ user.phone or '—' }}</p>
+      <p>Role: {{ user.role }}</p>
+      <p>Balance: Rs.{{ wallet.balance }}</p>
+      <p>Status: {% if user.is_blocked %}Blocked{% else %}Active{% endif %}</p>
+      <div style="margin-top:1rem;display:flex;gap:0.5rem">
+        <a href="{{ url_for('admin.user_wallet', user_id=user.id) }}" class="btn">Wallet</a>
+        <form method="POST" action="{{ url_for('admin.block_user', user_id=user.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">{% if user.is_blocked %}Unblock{% else %}Block{% endif %}</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "components/base.html" %}
+{% block title %}Users - Agent{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_agent.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Players</h1>
+    {% include "components/flashes.html" %}
+    <div class="card" style="margin-bottom:1rem">
+      <form method="GET" style="display:flex;gap:0.5rem">
+        <input type="text" name="q" class="form-control" value="{{ q or '' }}" placeholder="Search username, email, phone">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Username</th><th>Name</th><th>Phone</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.full_name or '—' }}</td>
+            <td>{{ u.phone or '—' }}</td>
+            <td>{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty-state">No players found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

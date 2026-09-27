@@ -1,0 +1,44 @@
+{% extends "components/base.html" %}
+{% block title %}Agent Dashboard - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_agent.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Agent Dashboard</h1>
+    {% include "components/flashes.html" %}
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-title">Agent Float Balance</div>
+      <div style="font-size:2rem;color:var(--neon);margin-top:0.5rem">Rs.{{ agent_wallet.balance if agent_wallet else 0 }}</div>
+      <p style="color:var(--text-muted);margin-top:0.5rem">Use this balance to load player wallets. Admin must top-up your float.</p>
+      <a href="{{ url_for('agent.load_wallet') }}" class="btn btn-sm btn-primary" style="margin-top:0.75rem">Load Player Wallet</a>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Pending Deposits</div><div class="stat-value">{{ pending }}</div></div>
+      {% if profile %}
+      <div class="stat-card"><div class="stat-label">Total Loads</div><div class="stat-value">Rs.{{ profile.total_loads }}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Commission</div><div class="stat-value">Rs.{{ profile.total_commission }}</div></div>
+      <div class="stat-card"><div class="stat-label">Commission Rate</div><div class="stat-value">{{ profile.commission_rate }}%</div></div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Deposit Requests</div>
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for d in recent %}
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.user.username if d.user else d.user_id }}</td>
+            <td>Rs.{{ d.amount }}</td>
+            <td><span class="badge badge-{{ d.status }}">{{ d.status }}</span></td>
+            <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty-state">No recent requests.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

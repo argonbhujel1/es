@@ -1,0 +1,18 @@
+{% extends "components/base.html" %}
+{% block title %}Games - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  <h1 class="page-title">Games</h1>
+  <div class="stat-grid">
+    {% for g in games %}
+    <a href="{{ url_for('public.game_detail', slug=g.slug) }}" class="stat-card" style="text-decoration:none;color:inherit">
+      {% if g.icon %}<img src="{{ g.icon }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:8px;margin-bottom:0.5rem">{% elif g.banner %}<img src="{{ g.banner }}" alt="" style="width:100%;max-height:80px;object-fit:cover;border-radius:8px;margin-bottom:0.5rem">{% endif %}
+      <div class="stat-value" style="font-size:1.3rem">{{ g.name }}</div>
+      <div class="stat-label">{{ g.description or 'Rooms & tournaments' }} →</div>
+    </a>
+    {% else %}
+    <p class="empty-state">No games configured yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

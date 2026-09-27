@@ -1,0 +1,30 @@
+{% extends "components/base.html" %}
+{% block title %}QR Management - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Deposit QR Management</h1>
+    {% include "components/flashes.html" %}
+    <p style="color:var(--text-muted);margin-bottom:1rem">Manage payment method QR codes used for deposits. Edit from Payment Methods.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+      {% for m in methods %}
+      <div class="card">
+        <strong style="color:#fff">{{ m.name }}</strong>
+        <span class="badge badge-{{ 'success' if m.is_active else 'danger' }}">{{ 'ACTIVE' if m.is_active else 'INACTIVE' }}</span>
+        {% if m.qr_image %}
+        <div style="margin:1rem 0"><img src="{{ m.qr_image }}" alt="QR" style="max-width:200px;border-radius:8px"></div>
+        {% else %}
+        <p style="color:var(--text-muted);margin:1rem 0">No QR uploaded</p>
+        {% endif %}
+        <p>Account: {{ m.account_name }} / {{ m.account_number }}</p>
+        <p>Deposit: Rs.{{ m.min_deposit }} – Rs.{{ m.max_deposit }}</p>
+        <a href="{{ url_for('admin.payment_methods') }}?edit={{ m.id }}" class="btn btn-sm btn-primary">Edit</a>
+      </div>
+      {% else %}
+      <div class="card"><p class="empty-state">No payment methods. <a href="{{ url_for('admin.payment_methods') }}">Add one</a></p></div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

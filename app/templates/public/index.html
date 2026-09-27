@@ -1,0 +1,104 @@
+{% extends "components/base.html" %}
+{% block title %}ESPORTS ARENA - Compete. Win. Dominate.{% endblock %}
+{% block body %}
+<div class="public-content">
+  <section class="hero">
+    <h1>ESPORTS <span>ARENA</span></h1>
+    <p>Compete in Free Fire, PUBG Mobile, eFootball & more. Join tournaments, win prizes.</p>
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+    <a href="{{ url_for('public.tournaments') }}" class="btn">View Tournaments</a>
+    {% else %}
+    <a href="{{ url_for('public.tournaments') }}" class="btn btn-primary">Tournaments</a>
+    <a href="{{ url_for('public.rooms') }}" class="btn">Rooms (FCFO)</a>
+    {% endif %}
+  </section>
+
+  <h2 class="page-title" style="margin-top:2rem">🏆 Top Prize Tournaments</h2>
+  <div class="tournament-grid">
+    {% for t in tournaments %}
+    <div class="tournament-card">
+      <div class="tournament-banner">{% if t.banner %}<img src="{{ t.banner }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}🏆{% endif %}</div>
+      <div class="tournament-body">
+        <div class="tournament-name">{{ t.name }}</div>
+        <div class="tournament-meta">
+          <span>{{ t.game.name if t.game else '' }}</span>
+          <span class="badge badge-{{ t.status }}">{{ t.status }}</span>
+          <span>{{ t.current_players or 0 }}/{{ t.max_players }} players</span>
+        </div>
+        <div class="tournament-prize">Prize: Rs.{{ t.prize_pool }}</div>
+        <div style="margin-top:0.75rem"><a href="{{ url_for('public.tournament_detail', slug=t.slug) }}" class="btn btn-sm">View Details</a></div>
+      </div>
+    </div>
+    {% else %}
+    <p class="empty-state">No tournaments yet. Check back soon!</p>
+    {% endfor %}
+  </div>
+
+  <h2 class="page-title" style="margin-top:2.5rem">🎮 Open Rooms (FCFO — first 5)</h2>
+  <p style="color:var(--text-muted);margin-bottom:1rem">First Come First Out — oldest open rooms shown first. Join early!</p>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Room</th><th>Game</th><th>Host</th><th>Stake</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in rooms %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>
+            {% if r.cover_image %}<img src="{{ r.cover_image }}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px">{% endif %}
+            {{ r.name }}
+          </td>
+          <td>{{ r.game.name if r.game else '—' }}</td>
+          <td>{{ r.creator.username if r.creator else '—' }}</td>
+          <td>Rs.{{ r.stake_amount or 0 }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('user.room_detail', room_id=r.id) }}" class="btn btn-sm btn-primary">Join</a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sm">Login to Join</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="empty-state">No open rooms. <a href="{{ url_for('auth.register') }}">Register</a> and create one!</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:0.75rem"><a href="{{ url_for('public.rooms') }}" class="btn btn-sm">All Rooms</a></p>
+
+  {% if games %}
+  <h2 class="page-title" style="margin-top:2.5rem">Games</h2>
+  <div class="stat-grid">
+    {% for g in games %}
+    <a href="{{ url_for('public.game_detail', slug=g.slug) }}" class="stat-card" style="text-decoration:none;color:inherit">
+      {% if g.icon %}<img src="{{ g.icon }}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px;margin-bottom:0.5rem">{% endif %}
+      <div class="stat-value" style="font-size:1.2rem">{{ g.name }}</div>
+      <div class="stat-label">Rooms & Tournaments →</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if top_players %}
+  <h2 class="page-title" style="margin-top:2.5rem">Top Players</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Rank</th><th>Player</th><th>Points</th><th>Wins</th><th>Prize</th></tr></thead>
+      <tbody>
+        {% for e in top_players %}
+        <tr>
+          <td>#{{ loop.index }}</td>
+          <td>{{ e.user.username if e.user else '—' }}</td>
+          <td>{{ e.points }}</td>
+          <td>{{ e.wins }}</td>
+          <td>Rs.{{ e.prize_earned }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

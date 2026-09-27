@@ -1,0 +1,36 @@
+{% extends "components/base.html" %}
+{% block title %}Wallet Management - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Wallet Management</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <form method="GET">
+        <div class="form-group"><label class="form-label">Search user (username / email / ID)</label>
+          <input type="text" name="q" class="form-control" value="{{ q or '' }}" placeholder="player1">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+
+    {% if user %}
+    <div class="card">
+      <h2 class="card-title">{{ user.username }} (ID: {{ user.id }})</h2>
+      <p>Balance: <strong style="color:var(--neon)">Rs.{{ wallet.balance if wallet else 0 }}</strong>
+         | Held: Rs.{{ wallet.held_balance if wallet else 0 }}</p>
+      <p><a href="{{ url_for('admin.user_wallet', user_id=user.id) }}" class="btn btn-sm btn-primary">Open Full Wallet</a>
+         <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm">User Detail</a></p>
+    </div>
+    {% elif q %}
+    <div class="card"><p class="empty-state">No user found for "{{ q }}".</p></div>
+    {% else %}
+    <div class="card"><p class="empty-state">Search for a user to manage their wallet, or go to Users list.</p>
+      <a href="{{ url_for('admin.users') }}" class="btn btn-primary" style="margin-top:1rem">Browse Users</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

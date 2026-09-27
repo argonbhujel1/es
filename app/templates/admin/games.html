@@ -1,0 +1,53 @@
+{% extends "components/base.html" %}
+{% block title %}Games - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Games</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Add Game</span></div>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="add">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required placeholder="Free Fire"></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+        <div class="form-group"><label class="form-label">Icon / Photo</label><input type="file" name="icon" class="form-control" accept="image/*"></div>
+        <div class="form-group"><label class="form-label">Banner</label><input type="file" name="banner" class="form-control" accept="image/*"></div>
+        <button type="submit" class="btn btn-primary">Add Game</button>
+      </form>
+    </div>
+
+    {% for g in games %}
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+        {% if g.icon %}<img src="{{ g.icon }}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px">{% endif %}
+        {% if g.banner %}<img src="{{ g.banner }}" alt="" style="max-width:160px;border-radius:8px">{% endif %}
+        <div style="flex:1">
+          <strong style="color:#fff">{{ g.name }}</strong>
+          <span class="badge badge-{{ 'success' if g.is_active else 'danger' }}">{{ 'Active' if g.is_active else 'Inactive' }}</span>
+          <p style="color:var(--text-muted)">{{ g.description or '' }}</p>
+          <details style="margin-top:0.75rem">
+            <summary class="btn btn-sm">Edit / Upload Photo</summary>
+            <form method="POST" enctype="multipart/form-data" style="margin-top:0.75rem">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="edit">
+              <input type="hidden" name="game_id" value="{{ g.id }}">
+              <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-control" value="{{ g.name }}"></div>
+              <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2">{{ g.description or '' }}</textarea></div>
+              <div class="form-group"><label class="form-label">New Icon</label><input type="file" name="icon" class="form-control" accept="image/*"></div>
+              <div class="form-group"><label class="form-label">New Banner</label><input type="file" name="banner" class="form-control" accept="image/*"></div>
+              <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            </form>
+          </details>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card"><p class="empty-state">No games.</p></div>
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}

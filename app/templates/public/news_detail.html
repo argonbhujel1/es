@@ -1,0 +1,11 @@
+{% extends "components/base.html" %}
+{% block title %}{{ item.title }} - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  <h1 class="page-title">{{ item.title }}</h1>
+  <div class="card">
+    <p style="color:var(--text-muted);margin-bottom:1rem">{{ item.published_at.strftime('%Y-%m-%d') if item.published_at else '' }}</p>
+    <div>{{ item.content }}</div>
+  </div>
+</div>
+{% endblock %}

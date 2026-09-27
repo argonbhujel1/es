@@ -1,0 +1,29 @@
+{% extends "components/base.html" %}
+{% block title %}Settings - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Settings</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <p style="color:var(--text-muted)">Platform settings. Limits are configured via environment / config.py:</p>
+      <ul style="margin-top:1rem;line-height:2;color:#fff">
+        <li>Min Deposit: Rs.100</li>
+        <li>Max Deposit: Rs.50,000</li>
+        <li>Min Withdrawal: Rs.100</li>
+        <li>Max Withdrawal: Rs.50,000</li>
+        <li>Default Agent Commission: 2%</li>
+      </ul>
+      <p style="margin-top:1rem;color:var(--text-muted)">Change these in <code>config.py</code> or environment variables.</p>
+      <h2 class="card-title" style="margin-top:1.5rem">Email</h2>
+      <ul style="line-height:2;color:#fff">
+        <li>From: <code>Esports.info@argan.com.np</code></li>
+        <li>Admin alerts: <code>info@argan.com.np</code></li>
+        <li>Set <code>MAIL_SERVER</code>, <code>MAIL_USERNAME</code>, <code>MAIL_PASSWORD</code> in env</li>
+        <li>Notifications, deposits, tournaments, admin user changes → email</li>
+      </ul>
+    </div>
+  </main>
+</div>
+{% endblock %}

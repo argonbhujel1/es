@@ -1,0 +1,44 @@
+{% extends "components/base.html" %}
+{% block title %}Deposit Requests - Agent{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_agent.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Deposit Requests</h1>
+    {% include "components/flashes.html" %}
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Ref</th><th>Screenshot</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for d in deposits %}
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.user.username if d.user else d.user_id }}</td>
+            <td>Rs.{{ d.amount }}</td>
+            <td>{{ d.reference_number or '—' }}</td>
+            <td>{% if d.screenshot %}<a href="{{ d.screenshot }}" target="_blank">View</a>{% else %}—{% endif %}</td>
+            <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td><span class="badge badge-{{ d.status }}">{{ d.status }}</span></td>
+            <td>
+              {% if d.status == 'pending' %}
+              <form method="POST" action="{{ url_for('agent.approve_deposit_req', dep_id=d.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-primary">Approve</button>
+              </form>
+              <form method="POST" action="{{ url_for('agent.reject_deposit_req', dep_id=d.id) }}" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="reason" value="Rejected by agent">
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="empty-state">No deposit requests.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "components/base.html" %}
+{% block title %}Prizes - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Prize Distribution</h1>
+    {% include "components/flashes.html" %}
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Tournament</th><th>Winner</th><th>Amount</th><th>Balance After</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for p in prizes %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.tournament.name if p.tournament else p.tournament_id }}</td>
+            <td>{{ p.winner.username if p.winner else p.winner_id }}</td>
+            <td>Rs.{{ p.amount }}</td>
+            <td>Rs.{{ p.new_balance or '—' }}</td>
+            <td>{{ p.approved_at.strftime('%Y-%m-%d %H:%M') if p.approved_at else (p.created_at.strftime('%Y-%m-%d') if p.created_at else '') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No prize distributions yet. Approve match results to distribute prizes.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

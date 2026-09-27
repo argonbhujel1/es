@@ -1,0 +1,21 @@
+{% extends "components/base.html" %}
+{% block title %}Profile - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_user.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Profile</h1>
+    {% include "components/flashes.html" %}
+    <div class="card">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Username</label><input class="form-control" value="{{ current_user.username }}" disabled></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" value="{{ current_user.email }}" disabled></div>
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" name="full_name" class="form-control" value="{{ current_user.full_name or '' }}"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control" value="{{ current_user.phone or '' }}"></div>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

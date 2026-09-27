@@ -1,0 +1,54 @@
+{% extends "components/base.html" %}
+{% block title %}Matches - Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {% include "components/sidebar_admin.html" %}
+  <main class="main-content">
+    <h1 class="page-title">Matches</h1>
+    {% include "components/flashes.html" %}
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-header"><span class="card-title">Create Match</span></div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group"><label class="form-label">Tournament</label>
+          <select name="tournament_id" class="form-control" required>
+            <option value="">Select</option>
+            {% for t in tournaments %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Match Name / Round</label><input type="text" name="name" class="form-control" placeholder="Round 1 / Semi Final"></div>
+        <div class="form-group"><label class="form-label">Match Number</label><input type="number" name="match_number" class="form-control" value="1" min="1"></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select name="status" class="form-control">
+            <option value="scheduled">Scheduled</option>
+            <option value="live">Live</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Match</button>
+      </form>
+    </div>
+
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Tournament</th><th>Name</th><th>#</th><th>Status</th><th>Created</th></tr></thead>
+        <tbody>
+          {% for m in matches %}
+          <tr>
+            <td>{{ m.id }}</td>
+            <td>{{ m.tournament.name if m.tournament else m.tournament_id }}</td>
+            <td>{{ m.name or '—' }}</td>
+            <td>{{ m.match_number or '—' }}</td>
+            <td><span class="badge badge-{{ m.status }}">{{ m.status }}</span></td>
+            <td>{{ m.created_at.strftime('%Y-%m-%d') if m.created_at else '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty-state">No matches yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

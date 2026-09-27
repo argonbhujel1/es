@@ -1,0 +1,69 @@
+{% extends "components/base.html" %}
+{% block title %}{{ tournament.name }} - ESPORTS ARENA{% endblock %}
+{% block body %}
+<div class="public-content">
+  {% include "components/flashes.html" %}
+  <h1 class="page-title">{{ tournament.name }}</h1>
+  <div class="card">
+    {% if tournament.banner %}<img src="{{ tournament.banner }}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:1rem">{% endif %}
+    <div class="tournament-meta" style="margin-bottom:1rem">
+      <span class="badge badge-{{ tournament.status }}">{{ tournament.status }}</span>
+      <span>Game: {{ tournament.game.name if tournament.game else '—' }}</span>
+      <span>Players: {{ tournament.current_players or 0 }}/{{ tournament.max_players }}</span>
+      <span>Entry: Rs.{{ tournament.entry_fee }}</span>
+      <span class="tournament-prize">Prize Pool: Rs.{{ tournament.prize_pool }}</span>
+      {% if tournament.is_user_hosted %}<span class="badge badge-info">User hosted</span>
+      <span>Host: {{ tournament.creator.username if tournament.creator else '—' }}</span>
+      <span>From Tournament pot: Rs.{{ tournament.pot_balance or 0 }}</span>{% endif %}
+    </div>
+    {% if tournament.description %}<p>{{ tournament.description }}</p>{% endif %}
+    {% if tournament.rules %}<h3 style="margin-top:1rem;color:#fff">Rules</h3><p>{{ tournament.rules }}</p>{% endif %}
+    {% if tournament.prize_distribution %}
+    <h3 style="margin-top:1rem;color:#fff">Prize Distribution</h3>
+    <p>{{ tournament.prize_distribution }}</p>
+    {% endif %}
+
+    {% if tournament.is_user_hosted and tournament.payment_qr %}
+    <h3 style="margin-top:1rem;color:#fff">Pay Host (QR)</h3>
+    <img src="{{ tournament.payment_qr }}" style="max-width:180px;border-radius:8px">
+    <p>{{ tournament.payment_instructions or '' }}</p>
+    {% endif %}
+
+    <h3 style="margin-top:1.5rem;color:#fff">Joined players</h3>
+    <ul style="color:var(--text-muted)">
+      {% for p in tournament.participants if p.status == 'joined' %}
+      <li>{{ p.user.username if p.user else p.user_id }}</li>
+      {% else %}
+      <li>No players joined yet.</li>
+      {% endfor %}
+    </ul>
+
+    <div style="margin-top:1.5rem">
+      {% if current_user.is_authenticated and not current_user.is_admin() and not current_user.is_agent() %}
+        {% if tournament.status in ['upcoming', 'approved', 'live'] %}
+        <form method="POST" action="{{ url_for('user.join_tournament_route', t_id=tournament.id) }}" enctype="multipart/form-data" style="margin-bottom:1rem">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-group"><label class="form-label">Pay with</label>
+            <select name="pay_method" class="form-control">
+              <option value="wallet">Wallet (auto deduct Rs.{{ tournament.entry_fee }})</option>
+              {% if tournament.is_user_hosted %}
+              <option value="qr">Host QR (upload SS → host verifies)</option>
+              {% endif %}
+            </select>
+          </div>
+          {% if tournament.is_user_hosted %}
+          <div class="form-group"><label class="form-label">Payment screenshot (if QR)</label>
+            <input type="file" name="payment_ss" class="form-control" accept="image/*"></div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">Join Tournament (Rs.{{ tournament.entry_fee }})</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('user.submit_tournament_result', t_id=tournament.id) }}" class="btn">Upload Winner Screenshot</a>
+      {% elif not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to Join</a>
+      {% endif %}
+      <a href="{{ url_for('public.tournaments') }}" class="btn">Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
