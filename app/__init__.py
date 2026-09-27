@@ -7,12 +7,10 @@ from config import config
 import cloudinary
 import os
 
-
 db = SQLAlchemy()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()
-
 
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'warning'
@@ -24,26 +22,22 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
 
-        if config_name not in config:
-            config_name = 'default'
-
+    if config_name not in config:
+        config_name = 'default'
 
     app = Flask(
         __name__,
-        template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
-        static_folder=os.path.join(os.path.dirname(__file__), 'static')
+        template_folder='templates',
+        static_folder='static'
     )
-
 
     # Load configuration
     app.config.from_object(config[config_name])
 
-
     # Debug
     app.config['PROPAGATE_EXCEPTIONS'] = True
 
-
-    # Extensions
+    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
@@ -64,10 +58,10 @@ def create_app(config_name=None):
         user,
         game,
         tournament,
-        leaderboard,
         wallet,
         payment,
         news,
+        leaderboard,
         notification,
         agent,
         audit
@@ -75,6 +69,7 @@ def create_app(config_name=None):
 
 
     # Register blueprints
+
     from app.routes.public import public_bp
     from app.routes.auth import auth_bp
     from app.routes.user import user_bp
@@ -89,6 +84,19 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp)
     app.register_blueprint(agent_bp)
     app.register_blueprint(wallet_bp)
+
+
+    # Error pages
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return "Page Not Found", 404
+
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return "Internal Server Error", 500
 
 
     return app
