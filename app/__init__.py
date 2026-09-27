@@ -6,11 +6,14 @@ from flask_migrate import Migrate
 from config import config
 import cloudinary
 import os
+from pathlib import Path
+
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()
+
 
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'warning'
@@ -25,30 +28,28 @@ def create_app(config_name=None):
     if config_name not in config:
         config_name = 'default'
 
-    from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+    BASE_DIR = Path(__file__).resolve().parent
 
-app = Flask(
-    __name__,
-    template_folder=str(BASE_DIR / "templates"),
-    static_folder=str(BASE_DIR / "static")
-)
 
-    # Load configuration
+    app = Flask(
+        __name__,
+        template_folder=str(BASE_DIR / "templates"),
+        static_folder=str(BASE_DIR / "static")
+    )
+
+
     app.config.from_object(config[config_name])
 
-    # Debug
     app.config['PROPAGATE_EXCEPTIONS'] = True
 
-    # Initialize extensions
+
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
     migrate.init_app(app, db)
 
 
-    # Cloudinary
     if app.config.get('CLOUDINARY_CLOUD_NAME'):
         cloudinary.config(
             cloud_name=app.config['CLOUDINARY_CLOUD_NAME'],
@@ -58,22 +59,10 @@ app = Flask(
 
 
     # Import models
-    from app.models import (
-        user,
-        game,
-        tournament,
-        wallet,
-        payment,
-        news,
-        leaderboard,
-        notification,
-        agent,
-        audit
-    )
+    from app.models import user, game, tournament, wallet, payment, news, leaderboard, notification, agent, audit
 
 
-    # Register blueprints
-
+    # Routes
     from app.routes.public import public_bp
     from app.routes.auth import auth_bp
     from app.routes.user import user_bp
@@ -88,19 +77,6 @@ app = Flask(
     app.register_blueprint(admin_bp)
     app.register_blueprint(agent_bp)
     app.register_blueprint(wallet_bp)
-
-
-    # Error pages
-
-    @app.errorhandler(404)
-    def not_found(error):
-        return "Page Not Found", 404
-
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        db.session.rollback()
-        return "Internal Server Error", 500
 
 
     return app
